@@ -5,7 +5,7 @@ on:
     - test
 
     paths:
-      - 'deployment/cfx/prod/dos/Chart.yaml'
+      - 'deployment/cfx/prod/dos'
 
 jobs:
   check-dependencies:
