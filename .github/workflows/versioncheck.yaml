@@ -30,15 +30,17 @@ jobs:
 
       - name: Check dependency versions
         run: |
-          pwd
+
           cd deployment/preprod
           echo "In preprod"
-          PREPROD=$(helm dependency list --output json | jq -r '.[0].version')
+          #PREPROD=$(helm dependency list -o json | jq -r '.[0].version')
+          PREPROD=$(helm dependency list | tail -n +2 | awk '{print $2}')
           echo "PREPROD: $PREPROD"
 
           cd deployment/prod
           echo "In prod"
-          PROD=$(helm dependency list --output json | jq -r '.[0].version')
+          #PROD=$(helm dependency list -o json | jq -r '.[0].version')
+          PROD=$(helm dependency list | tail -n +2 | awk '{print $2}')
           echo "PROD: $PROD"
 
           if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
