@@ -2,10 +2,10 @@ on:
   push:
     branches:
     - main
-  pull_request:
-    branches:
-    - main
-    - test-*
+#   pull_request:
+#     branches:
+#     - main
+#     - test-*
 
     paths:
     - 'deployment/prod/Chart.yaml'
@@ -24,14 +24,18 @@ jobs:
           curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
           chmod 700 get_helm.sh
           ./get_helm.sh
+      - run: |
+          ls -ld deployment/preprod
 
       - name: Check dependency versions
         run: |
           cd deployment/preprod
+          echo "In preprod"
           PREPROD=$(helm dependency list -o json | jq -r '.[0].version')
           echo "PREPROD: $PREPROD"
 
           cd deployment/prod
+          echo "In prod"
           PROD=$(helm dependency list -o json | jq -r '.[0].version')
           echo "PROD: $PROD"
 
