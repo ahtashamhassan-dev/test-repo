@@ -1,0 +1,12 @@
+apiVersion: v2
+name: dos
+description: A Helm chart for Kubernetes
+
+type: application
+
+version: 1.0.0
+
+dependencies:
+  - name: dos
+    version: 1.1.6
+    alias: dos

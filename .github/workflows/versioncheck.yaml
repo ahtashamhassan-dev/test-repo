@@ -1,0 +1,39 @@
+on:
+    push:
+      branches:
+        - main
+
+      paths:
+      - 'deployment/cfx/prod/dos/Chart.yaml'
+
+jobs:
+  check-dependencies:
+    name: Check dependency versions
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Helm
+      run: |
+        curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+        chmod 700 get_helm.sh
+        ./get_helm.sh
+
+    - name: Debug changes
+      run: |
+        echo "Changes in this PR:"
+        git diff --name-only HEAD^ HEAD
+
+    - name: Check dependency versions
+      run: |
+        cd deployment/cfx/preprod/dos/Chart.yaml
+        PREPROD=$(helm dependency list -o json | jq '.[] | select(.Name=="dependencies")' | jq '.version')
+        echo "PREPROD: $PREPROD"
+
+        cd deployment/cfx/prod/dos/Chart.yaml
+        PROD=$(helm dependency list -o json | jq '.[] | select(.Name=="dependencies")' | jq '.version')
+        echo "PROD: $PROD"
+
+        if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
