@@ -1,11 +1,14 @@
 on:
+  push:
+    branches:
+    - main
   pull_request:
     branches:
     - main
-    - test
+    - test-*
 
     paths:
-    - 'deployment/cfx/prod/dos/Chart.yaml'
+    - 'deployment/prod/Chart.yaml'
 
 jobs:
     check-dependencies:
@@ -24,11 +27,11 @@ jobs:
 
       - name: Check dependency versions
         run: |
-          cd deployment/cfx/preprod/dos
+          cd deployment/preprod
           PREPROD=$(helm dependency list -o json | jq -r '.[0].version')
           echo "PREPROD: $PREPROD"
 
-          cd deployment/cfx/prod/dos
+          cd deployment/prod
           PROD=$(helm dependency list -o json | jq -r '.[0].version')
           echo "PROD: $PROD"
 
