@@ -26,9 +26,11 @@ jobs:
           ./get_helm.sh
       - run: |
           ls -ld deployment/preprod
+          ls -ld deployment/prod
 
       - name: Check dependency versions
         run: |
+          pwd
           cd deployment/preprod
           echo "In preprod"
           PREPROD=$(helm dependency list -o json | jq -r '.[0].version')
