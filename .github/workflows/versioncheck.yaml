@@ -27,6 +27,7 @@ jobs:
       - run: |
           ls -ld deployment/preprod
           ls -ld deployment/prod
+          ls -l deployment
 
       - name: Check dependency versions
         run: |
@@ -37,6 +38,7 @@ jobs:
           PREPROD=$(helm dependency list | tail -n +2 | awk '{print $2}')
           echo "PREPROD: $PREPROD"
 
+          cd ../..
           cd deployment/prod
           echo "In prod"
           #PROD=$(helm dependency list -o json | jq -r '.[0].version')
