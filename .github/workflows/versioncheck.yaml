@@ -21,11 +21,6 @@ jobs:
         chmod 700 get_helm.sh
         ./get_helm.sh
 
-    - name: Debug changes
-      run: |
-        echo "Changes in this PR:"
-        git diff --name-only HEAD^ HEAD
-
     - name: Check dependency versions
       run: |
         cd deployment/cfx/preprod/dos/Chart.yaml
