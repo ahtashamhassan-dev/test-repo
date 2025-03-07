@@ -25,11 +25,17 @@ jobs:
       - name: Check dependency versions
         run: |
           cd deployment/cfx/preprod/dos
-          PREPROD=$(helm dependency list -o json | jq '.[] | select(.Name=="dependencies")' | jq '.version')
+
+          PREPROD=$(helm dependency list -o json | jq -r '.[0].version')
+          echo "Ahtasham"
           echo "PREPROD: $PREPROD"
 
+      - run: |
+          echo "Ahtasham2"
+          ls -ld deployment/cfx/prod/dos
+
           cd deployment/cfx/prod/dos
-          PROD=$(helm dependency list -o json | jq '.[] | select(.Name=="dependencies")' | jq '.version')
+          PROD=$(helm dependency list -o json | jq -r '.[0].version')
           echo "PROD: $PROD"
 
           if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
