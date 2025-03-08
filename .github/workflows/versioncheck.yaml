@@ -1,40 +1,76 @@
 on:
+  push:
+    branches:
+    - main
   pull_request:
     branches:
     - main
-    - latest
 
     paths:
-    - 'deployment/prod/Chart.yaml'
+    - 'deployment/cfx/prod/dos/Chart.yaml'
+    - 'deployment/cfx/prod/dos-dependencies/Chart.yaml'
+    - 'deployment/cfx/prod/infra-operators/Chart.yaml'
 
 jobs:
-    check-dependencies:
+    setting-up-helm:
+      name: Setting up Helm
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@v2
+
+        - name: Set up Helm
+          run: |
+            curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+            chmod 700 get_helm.sh
+            ./get_helm.sh
+
+    check-dependencies-dos:
       name: Check dependency versions
+      needs: setting-up-helm
       runs-on: ubuntu-latest
 
       steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Set up Helm
+      - name: Check dependency versions
         run: |
-          curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
-          chmod 700 get_helm.sh
-          ./get_helm.sh
+          cd deployment/preprod
+          echo " DOS - In preprod "
+          PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
+          echo "PREPROD: $PREPROD"
+
+          cd ../..
+          cd deployment/prod
+          echo " DOS - In prod "
+          PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
+          echo "PROD: $PROD"
+
+          if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
+
+    check-dependencies-dos-deps:
+      name: Check dependency versions
+      needs: check-dependencies-dos
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
 
       - name: Check dependency versions
         run: |
 
           cd deployment/preprod
+          echo "DOS-DEPENDENCIES - In preprod "
           PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
-          #PREPROD=$(helm dependency list | tail -n +2 | awk '{print $2}')
           echo "PREPROD: $PREPROD"
 
           cd ../..
           cd deployment/prod
-          echo "In prod"
+          echo "DOS-DEPENDENCIES - In prod "
           PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
-          #PROD=$(helm dependency list | tail -n +2 | awk '{print $2}')
           echo "PROD: $PROD"
 
           if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
