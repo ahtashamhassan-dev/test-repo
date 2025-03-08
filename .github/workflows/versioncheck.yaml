@@ -42,7 +42,7 @@ jobs:
           PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
           echo "PREPROD: $PREPROD"
 
-          cd ../..
+          cd ../../../..
           cd deployment/cfx/prod/dos
           echo " DOS - In prod "
           PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
@@ -67,7 +67,7 @@ jobs:
           PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos-dependencies") | .version')
           echo "PREPROD: $PREPROD"
 
-          cd ../..
+          cd ../../../..
           cd deployment/cfx/prod/dos-dependencies
           echo "DOS-DEPENDENCIES - In prod "
           PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos-dependencies") | .version')
