@@ -1,0 +1,94 @@
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+    paths:
+    - 'deployment/cfx/preprod/dos/Chart.yaml'
+    - 'deployment/cfx/preprod/dos-dependencies/Chart.yaml'
+    - 'deployment/cfx/preprod/infra-operators/Chart.yaml'
+
+jobs:
+    setting-up-helm:
+      name: Setting up Helm
+      runs-on: ubuntu-latest
+
+      steps:
+        - name: Checkout code
+          uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+        - name: Set up Helm
+          run: |
+            curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 > get_helm.sh
+            chmod 700 get_helm.sh
+            ./get_helm.sh
+
+    checking-dos-versions:
+      name: Check Dos Versions
+      needs: setting-up-helm
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check dependency versions
+        run: |
+          cd deployment/cfx/preprod/dos
+          echo " DOS - In preprod "
+          PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
+          echo "PREPROD: $PREPROD"
+
+          cd ../../../..
+          cd deployment/cfx/prod/dos
+          echo " DOS - In prod "
+          PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
+          echo "PROD: $PROD"
+
+          if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
+
+    checking-dos-dependencies-versions:
+      name: Check Dos Dependency Versions
+      needs: checking-dos-versions
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check dependency versions
+        run: |
+          cd deployment/cfx/preprod/dos-dependencies
+          PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos-dependencies") | .version')
+          echo "PREPROD: $PREPROD"
+
+          cd ../../../..
+          cd deployment/cfx/prod/dos-dependencies
+          PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos-dependencies") | .version')
+          echo "PROD: $PROD"
+
+          if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
+
+    checking-infra-operators-versions:
+      name: Check Infra Operators Versions
+      needs: checking-dos-dependencies-versions
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check dependency versions
+        run: |
+          cd deployment/cfx/preprod/infra-operators
+          PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="infra-operators") | .version')
+          echo "PREPROD: $PREPROD"
+
+          cd ../../../..
+          cd deployment/cfx/prod/infra-operators
+          PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="infra-operators") | .version')
+          echo "PROD: $PROD"
+          if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
