@@ -18,7 +18,7 @@ jobs:
 
       steps:
         - name: Checkout code
-          uses: actions/checkout@v2
+          uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
         - name: Set up Helm
           run: |
@@ -26,14 +26,14 @@ jobs:
             chmod 700 get_helm.sh
             ./get_helm.sh
 
-    check-dependencies-dos:
-      name: Check dependency versions
+    checking-dos-versions:
+      name: Check Dos Versions
       needs: setting-up-helm
       runs-on: ubuntu-latest
 
       steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Check dependency versions
         run: |
@@ -50,27 +50,27 @@ jobs:
 
           if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
 
-    check-dependencies-dos-deps:
-      name: Check dependency versions
-      needs: check-dependencies-dos
+    checking-dos-dependencies-versions:
+      name: Check Dos Dependency Versions
+      needs: checking-dos-versions
       runs-on: ubuntu-latest
 
       steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
 
       - name: Check dependency versions
         run: |
 
           cd deployment/preprod
           echo "DOS-DEPENDENCIES - In preprod "
-          PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
+          PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos-dependencies") | .version')
           echo "PREPROD: $PREPROD"
 
           cd ../..
           cd deployment/prod
           echo "DOS-DEPENDENCIES - In prod "
-          PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos") | .version')
+          PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos-dependencies") | .version')
           echo "PROD: $PROD"
 
           if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
