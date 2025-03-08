@@ -1,0 +1,10 @@
+apiVersion: v2
+name: infra-operators
+description: A Helm chart for Kubernetes
+
+version: 1.0.0
+
+dependencies:
+  - name: infra-operators
+    version: 1.0.1
+    alias: infra-operators

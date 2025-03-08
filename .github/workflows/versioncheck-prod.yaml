@@ -61,16 +61,34 @@ jobs:
 
       - name: Check dependency versions
         run: |
-
           cd deployment/cfx/preprod/dos-dependencies
-          echo "DOS-DEPENDENCIES - In preprod "
           PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos-dependencies") | .version')
           echo "PREPROD: $PREPROD"
 
           cd ../../../..
           cd deployment/cfx/prod/dos-dependencies
-          echo "DOS-DEPENDENCIES - In prod "
           PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="dos-dependencies") | .version')
           echo "PROD: $PROD"
 
+          if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
+
+    checking-infra-operators-versions:
+      name: Check Infra Operators Versions
+      needs: checking-dos-dependencies-versions
+      runs-on: ubuntu-latest
+
+      steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check dependency versions
+        run: |
+          cd deployment/cfx/preprod/infra-operators
+          PREPROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="infra-operators") | .version')
+          echo "PREPROD: $PREPROD"
+
+          cd ../../../..
+          cd deployment/cfx/prod/infra-operators
+          PROD=$(cat Chart.yaml | yq '.dependencies[] | select(.name=="infra-operators") | .version')
+          echo "PROD: $PROD"
           if [ "$PREPROD" != "$PROD" ]; then exit 1; fi
